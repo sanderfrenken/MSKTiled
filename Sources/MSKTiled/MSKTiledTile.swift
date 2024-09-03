@@ -1,4 +1,4 @@
-public struct MSKTile: Equatable, Hashable, Decodable {
+public struct MSKTiledTile: Equatable, Hashable, Decodable {
     public let column: Int
     public let row: Int
 
@@ -7,7 +7,7 @@ public struct MSKTile: Equatable, Hashable, Decodable {
         self.row = row
     }
 
-    public static func == (lhs: MSKTile, rhs: MSKTile) -> Bool {
+    public static func == (lhs: MSKTiledTile, rhs: MSKTiledTile) -> Bool {
         return lhs.column == rhs.column && lhs.row == rhs.row
     }
 }

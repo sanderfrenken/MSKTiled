@@ -144,7 +144,7 @@ open class MSKTiledMapScene: SKScene {
         pathGraph = graph
     }
 
-    public func updatePathGraphUsing(layer: SKTileMapNode, obstacleProperty: String, diagonalsAllowed: Bool, removingTiles: [MSKTile]) {
+    public func updatePathGraphUsing(layer: SKTileMapNode, obstacleProperty: String, diagonalsAllowed: Bool, removingTiles: [MSKTiledTile]) {
         let graph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(layer.numberOfColumns),
                                 height: Int32(layer.numberOfRows),
@@ -181,7 +181,7 @@ open class MSKTiledMapScene: SKScene {
         pathGraph = graph
     }
 
-    public func getPath(fromTile: MSKTile, toTile: MSKTile) -> [MSKTile]? {
+    public func getPath(fromTile: MSKTiledTile, toTile: MSKTiledTile) -> [MSKTiledTile]? {
         if !isValidTile(tile: fromTile) {
             log(logLevel: .warning, message: "Invalid tile provided as start for path")
         } else if !isValidTile(tile: toTile) {
@@ -204,7 +204,7 @@ open class MSKTiledMapScene: SKScene {
             log(logLevel: .warning, message: "Path could not be determined")
             return nil
         }
-        var points = [MSKTile]()
+        var points = [MSKTiledTile]()
         foundPath.forEach { pathNode in
             if let graphNode = pathNode as? GKGridGraphNode {
                 points.append(.init(column: Int(graphNode.gridPosition.x),
@@ -214,14 +214,14 @@ open class MSKTiledMapScene: SKScene {
         return points
     }
 
-    public func isValidTile(tile: MSKTile) -> Bool {
+    public func isValidTile(tile: MSKTiledTile) -> Bool {
         if tile.row < 0 || tile.column < 0 {
             return false
         }
         return tile.row <= baseTileMapNode.numberOfRows-1 || tile.column <= baseTileMapNode.numberOfColumns-1
     }
 
-    public func isValidPathTile(tile: MSKTile) -> Bool {
+    public func isValidPathTile(tile: MSKTiledTile) -> Bool {
         guard isValidTile(tile: tile) else {
             return false
         }
@@ -236,11 +236,11 @@ open class MSKTiledMapScene: SKScene {
         self.view?.removeGestureRecognizer(zoomGestureRecogniser)
     }
 
-    public func getTileFromPositionInScene(position: CGPoint) -> MSKTile? {
+    public func getTileFromPositionInScene(position: CGPoint) -> MSKTiledTile? {
         let pos = convert(position, to: baseTileMapNode)
         let column = baseTileMapNode.tileColumnIndex(fromPosition: pos)
         let row = baseTileMapNode.tileRowIndex(fromPosition: pos)
-        let tile = MSKTile(column: column, row: row)
+        let tile = MSKTiledTile(column: column, row: row)
         return isValidTile(tile: tile) ? tile : nil
     }
 
@@ -261,11 +261,11 @@ open class MSKTiledMapScene: SKScene {
         setCameraConstraints()
     }
 
-    public func getPositionInSceneFromTile(tile: MSKTile) -> CGPoint {
+    public func getPositionInSceneFromTile(tile: MSKTiledTile) -> CGPoint {
         return baseTileMapNode.centerOfTile(atColumn: tile.column, row: tile.row)
     }
 
-    public func getPositionsInSceneFromTiles(tiles: [MSKTile]) -> [CGPoint] {
+    public func getPositionsInSceneFromTiles(tiles: [MSKTiledTile]) -> [CGPoint] {
         var points = [CGPoint]()
         for tile in tiles {
             points.append(getPositionInSceneFromTile(tile: tile))
@@ -273,15 +273,15 @@ open class MSKTiledMapScene: SKScene {
         return points
     }
 
-    public func replaceTileGroupForTile(layer: SKTileMapNode, tile: MSKTile, tileGroup: SKTileGroup) {
+    public func replaceTileGroupForTile(layer: SKTileMapNode, tile: MSKTiledTile, tileGroup: SKTileGroup) {
         layer.setTileGroup(tileGroup, forColumn: tile.column, row: tile.row)
     }
 
-    public func removeTileGroupForTile(layer: SKTileMapNode, tile: MSKTile, tileGroup: SKTileGroup) {
+    public func removeTileGroupForTile(layer: SKTileMapNode, tile: MSKTiledTile, tileGroup: SKTileGroup) {
         layer.setTileGroup(nil, forColumn: tile.column, row: tile.row)
     }
 
-    public func getPropertiesForTileInLayer(layer: SKTileMapNode, tile: MSKTile) -> NSMutableDictionary? {
+    public func getPropertiesForTileInLayer(layer: SKTileMapNode, tile: MSKTiledTile) -> NSMutableDictionary? {
         return layer.tileDefinition(atColumn: tile.column, row: tile.row)?.userData
     }
 
