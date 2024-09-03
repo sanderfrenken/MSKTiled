@@ -456,7 +456,11 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
             }
             let row = Int(floor(CGFloat(tileIdInSheet)/CGFloat(rawTileSet.columns)))
 
-            let tileTexture = SKTexture(rect: CGRect(x: tileSize.width*CGFloat(column)/sourceTexture.size().width, y: 1-(tileSize.height*CGFloat(row+1)/sourceTexture.size().height), width: tileSize.width/sourceTexture.size().width, height: tileSize.height/sourceTexture.size().height), in: sourceTexture)
+            let tileTexture = SKTexture(rect: CGRect(x: tileSize.width*CGFloat(column)/sourceTexture.size().width, 
+                                                     y: 1-(tileSize.height*CGFloat(row+1)/sourceTexture.size().height),
+                                                     width: tileSize.width/sourceTexture.size().width,
+                                                     height: tileSize.height/sourceTexture.size().height),
+                                        in: sourceTexture)
 
             // Workaround to avoid tile cracking (https://github.com/mfessenden/SKTiled/issues/40)
             let uimg = UIImage(cgImage: tileTexture.cgImage())
