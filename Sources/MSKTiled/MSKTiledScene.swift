@@ -7,7 +7,7 @@ open class MSKTiledMapScene: SKScene {
 
     public let layers: [SKTileMapNode]
     public let tileGroups: [SKTileGroup]
-    public let tiledObjectGroups: [TiledObjectGroup]?
+    public let tiledObjectGroups: [MSKTiledObjectGroup]?
     public let zPositionPerNamedLayer: [String: Int]
 
     public let mapNode = SKNode()
@@ -17,7 +17,7 @@ open class MSKTiledMapScene: SKScene {
 
     public init(layers: [SKTileMapNode],
                 tileGroups: [SKTileGroup],
-                tiledObjectGroups: [TiledObjectGroup]?,
+                tiledObjectGroups: [MSKTiledObjectGroup]?,
                 size: CGSize,
                 minimumCameraScale: CGFloat,
                 maximumCameraScale: CGFloat?,

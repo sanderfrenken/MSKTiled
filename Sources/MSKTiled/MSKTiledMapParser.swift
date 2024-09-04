@@ -27,10 +27,10 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var currentRawLayer: RawLayer?
     private var addingCustomTileGroups: [SKTileGroup]?
 
-    private var currentTiledObjectGroup: TiledObjectGroup?
-    private var tiledObjectGroups = [TiledObjectGroup]()
+    private var currentTiledObjectGroup: MSKTiledObjectGroup?
+    private var tiledObjectGroups = [MSKTiledObjectGroup]()
 
-    private var currentTiledObject: TiledObject?
+    private var currentTiledObject: MSKTiledObject?
     private var fileName = ""
 
     public func loadTilemap(filename: String,
@@ -39,7 +39,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
                             // swiftlint:disable:next large_tuple
                             addingCustomTileGroups: [SKTileGroup]? = nil) -> (layers: [SKTileMapNode],
                                                                               tileGroups: [SKTileGroup],
-                                                                              tiledObjectGroups: [TiledObjectGroup]?) {
+                                                                              tiledObjectGroups: [MSKTiledObjectGroup]?) {
         self.fileName = filename
         self.allowTileImagesCache = allowTileImagesCache
         self.checkBundleForTileImages = checkBundleForTileImages
@@ -179,17 +179,17 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
             if let currentRawTile {
                 self.currentRawTile = RawTile(id: currentRawTile.id, properties: newProperties)
             } else if let currentTiledObject {
-                self.currentTiledObject = TiledObject(id: currentTiledObject.id,
-                                                      name: currentTiledObject.name,
-                                                      x: currentTiledObject.x,
-                                                      y: currentTiledObject.y,
-                                                      properties: newProperties,
-                                                      polygon: currentTiledObject.polygon)
+                self.currentTiledObject = MSKTiledObject(id: currentTiledObject.id,
+                                                         name: currentTiledObject.name,
+                                                         x: currentTiledObject.x,
+                                                         y: currentTiledObject.y,
+                                                         properties: newProperties,
+                                                         polygon: currentTiledObject.polygon)
             } else if let currentTiledObjectGroup {
-                self.currentTiledObjectGroup = TiledObjectGroup(id: currentTiledObjectGroup.id,
-                                                            name: currentTiledObjectGroup.name,
-                                                            properties: newProperties,
-                                                            objects: nil)
+                self.currentTiledObjectGroup = MSKTiledObjectGroup(id: currentTiledObjectGroup.id,
+                                                                   name: currentTiledObjectGroup.name,
+                                                                   properties: newProperties,
+                                                                   objects: nil)
             }
         } else if elementName == ElementName.layer.rawValue {
             guard let layerWidth = getDoubleValueFromAttributes(attributeDict, attributeName: .width),
@@ -260,12 +260,12 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
                     }
                     return .init(x: xValue, y: -yValue)
                 }
-                self.currentTiledObject = TiledObject(id: currentTiledObject.id,
-                                                      name: currentTiledObject.name,
-                                                      x: currentTiledObject.x,
-                                                      y: currentTiledObject.y,
-                                                      properties: currentTiledObject.properties,
-                                                      polygon: .init(points: coords))
+                self.currentTiledObject = MSKTiledObject(id: currentTiledObject.id,
+                                                         name: currentTiledObject.name,
+                                                         x: currentTiledObject.x,
+                                                         y: currentTiledObject.y,
+                                                         properties: currentTiledObject.properties,
+                                                         polygon: .init(points: coords))
             }
         }
     }
@@ -609,26 +609,6 @@ private struct RawLayer {
     let id: Int
     let name: String
     let invisible: Bool
-}
-
-public struct TiledObjectGroup {
-    public let id: String
-    public let name: String
-    public let properties: [String: Any]?
-    public let objects: [TiledObject]?
-}
-
-public struct TiledObject {
-    public let id: String
-    public let name: String
-    public let x: Int
-    public let y: Int
-    public let properties: [String: Any]?
-    public let polygon: Polygon?
-}
-
-public struct Polygon {
-    public let points: [CGPoint]
 }
 // swiftlint:disable:next file_length
 // swiftlint:enable identifier_name
