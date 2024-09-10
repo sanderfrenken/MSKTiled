@@ -14,17 +14,19 @@ For running examples using MSKTiled, please refer to the demo project [MSKTiledD
 
 ## How to use MSKTiled
 
+*Note: For an easy overview, it is advised to checkout the demo project [MSKTiledDemo](https://github.com/sanderfrenken/MSKTiledDemo) as mentioned above.*
+
 MSKTiled is a library to parse and render [Tiled](https://www.mapeditor.org) tilemaps. As such, you will need Tiled to create your tilemaps with.
 
 It currently supports `Orthogonal` maps in `CSV` format.
 
-There is no technical limitation on the tilemap size that can be rendered. Maps with for example 200x200 tiles render smoothly, and are condensed to single nodes by SKTileMapNode.
+There is no technical limitation on the tilemap size that can be rendered. Maps with for example 200x200 tiles render smoothly, and are condensed to single nodes by `SKTileMapNode`.
 
-This means that instead of drawing 40.000 nodes, using `SKTileMapNode` you will see the amount of nodes that will be drawn is equal to the amount of layers in your tilemap.
+This means that instead of drawing 40.000 individual nodes, using `SKTileMapNode` you will see the amount of nodes that will be drawn is equal to the amount of layers in your tilemap.
 
-As such `SKTileMapNode` is a very efficient mean to draw large tilemaps.
+Therefore `SKTileMapNode` is a very efficient mean to draw large tilemaps.
 
-MSKTiled incorporates `SKCameraNode` and gesture recognizers. As such, you can pinch to zoom and swipe to move the camera. The camera is bound internally to the scene bounds.
+MSKTiled incorporates `SKCameraNode` and gesture recognizers. You can pinch to zoom and swipe to move the camera, and the camera is automatically bound to the scene bounds.
 
 MSKtiled offers tiled based pathfinding. However, regular A\* pathfinding that is used internally from `GKGridGraph` can become slow when searching for paths in large graphs. This will typically become noticable if you try to do pathfinding for many entities at the same time. 
 
@@ -32,9 +34,11 @@ In such cases, it might be more efficient to resort to `GKObstacleGraph` or `GKM
 
 ### Initialisation
 
-With MSKTiled we create `SKScene` instances programatically, and they need to inherit from `MSKTiledMapScene` (make sure to import MSKTiled):
+With MSKTiled we need to create `SKScene` instances programatically which need to inherit from `MSKTiledMapScene` (make sure to import MSKTiled):
 
 ```
+import MSKTiled
+
 class GameScene: MSKTiledMapScene {
     // stuff
 }
@@ -62,15 +66,13 @@ class GameViewController: UIViewController {
 
 This way, we have access to view's size, and are able to pass it along to our `MSKTiledMapScene` instances. 
 
-This should be enough to start with the scene itself.
-
 Once you have setup your tilemap in Tiled it should looklike this:
 
 ![image info](./documentation/tiled-example.png)
 
 Pay attention to using `CSV` for encoding the map, and using `orthogonal` for orientation. Isometric is not supported so far.
 
-For each layer present in the map, SKTiled will create a `SKTileMapNode`. We do need to instruct SKTiled what zPosition should be used per layer. This information can be provided using a dictionary:
+For each layer present in the map, SKTiled will create a `SKTileMapNode`. We do need to instruct SKTiled what `zPosition` should be used per layer. This information can be provided using a dictionary:
 
 ```
 let zPositionPerNamedLayer = [
@@ -79,9 +81,7 @@ let zPositionPerNamedLayer = [
 ]
 ```
 
-Moreover, we need to inject the `minimumCameraScale`. This will instruct MSKTiled how far you enable the user to zoom in to the map. 
-
-A lower value corresponds with a deeper zoom allowance.
+Moreover, we need to inject the `minimumCameraScale`. This will instruct MSKTiled how far you enable the user to zoom in to the map, a lower value corresponds with an increase in zoom allowance.
 
 The complete initialiser will now look like this:
 
@@ -93,7 +93,7 @@ super.init(size: size,
            zPositionPerNamedLayer: zPositionPerNamedLayer)
 ```
 
-Finally, we need to add our Tiled map to the app as well as the tilesheets we use. So drag and drop those in your project and that should be it:
+Finally, we need to add our tilemap (`.tmx`) to the app as well as the tilesheets (`.png`) we use:
 
 ![image info](./documentation/xcode-tiled-resources.png)
 
