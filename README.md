@@ -101,7 +101,78 @@ Now hit run, and your map should appear.
 
 ### Pathfinding
 
-TODO
+You can use pathfinding built-in to MSKTiled. In order to do this, you need to update a path graph.
+Your Tiled map can have a layer which holds all the obstacle tiles. 
+
+By updating the pathgraph using the specified layer, MSKTiled will inspect that layer and add an obstacle for each tile that is present in the layer:
+
+```
+if let obstacleLayer = getLayer(name: "obstacles") {
+    updatePathGraphUsing(layer: obstacleLayer, diagonalsAllowed: true)
+}
+```
+
+Now, if you aim to find a path between a startTile and an endTile, you can do as follows:
+
+```
+// convert scene coordinates to valid tiles
+guard let startTile = getTileFromPositionInScene(position: startTilePosition), 
+      let endTile = getTileFromPositionInScene(position: endTilePosition) else {
+    return
+}
+
+// assert the tiles are valid
+// this built-in method checks that the tile is inside the scene bounds and is not an obstacle
+if !isValidPathTile(tile: startTile) || !isValidPathTile(tile: endTile) {
+    return
+}
+
+if let path = getPath(fromTile: firstTile, toTile: tile) {
+    // your path in MSKTiledTile objects is available
+}
+
+```
+
+### Custom properties
+
+Inside Tiled you can set custom properties. MSKTiled support custom properties on tiles, objects and object layers.
+
+#### Obstacles
+To get the custom properties set on an object layer or its contained obstacles for example, one can use:
+
+```
+tiledObjectGroups?.forEach({ group in // tiledObjectGroups are parsed from object layers defined in Tiled as `[MSKTiledObjectGroup]`
+    group.properties // get the layer's custom properties
+    group.objects?.forEach({ object in // each object inside an object layer in Tiled is stored to the `MSKTiledObjectGroup` as an `[MSKTiledObject]`
+        object.properties // get the object's custom properties
+    })
+})
+```
+
+#### Tiles
+To get the custom properties set of a specific tile contained in a defined layer, you can use:
+
+```
+if let obstacleLayer = getLayer(name: "obstacles") {
+    let tileDefinition = obstacleLayer.tileDefinition(atColumn: 0, row: 0) // get the SKTileDefinition
+    tileDefinition?.userData? // properties from Tiled are stored in the tileDefinition's userData
+}
+```
+
+
+
+### Caching
+
+Parsing tilemaps the first time is expensive as MKSTiled will need to create the individual tiles from the tilesheets referenced in the map. These individual tiles (which are just images) will be by default cached inside the app container. This behavior can be disabled though by injecting `allowTileImagesCache` set to `false`:
+
+```
+super.init(size: size,
+            tiledMapName: "exampleTiled",
+            minimumCameraScale: 0.12,
+            maximumCameraScale: nil,
+            zPositionPerNamedLayer: zPositionPerNamedLayer,
+            allowTileImagesCache: false)
+```
 
 ## Installation
 
