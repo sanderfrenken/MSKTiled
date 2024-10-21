@@ -40,6 +40,12 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var currentTiledObject: MSKTiledObject?
     private var fileName = ""
 
+    private var didParseFinish = false
+
+    public var isParserReady: Bool {
+        return didParseFinish
+    }
+
     @MainActor
     public func getTileMapNodes() -> (layers: [SKTileMapNode],
                                       tileGroups: [SKTileGroup],
@@ -97,6 +103,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
         parser.parse()
 
         cleanUp()
+        didParseFinish = true
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
