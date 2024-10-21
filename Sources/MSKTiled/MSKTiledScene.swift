@@ -64,9 +64,11 @@ open class MSKTiledMapScene: SKScene {
                 zPositionPerNamedLayer: [String: Int],
                 allowTileImagesCache: Bool = true,
                 addingCustomTileGroups: [SKTileGroup]? = nil) {
-        let parsed = MSKTiledMapParser.init().loadTilemap(filename: tiledMapName,
-                                                          allowTileImagesCache: allowTileImagesCache,
-                                                          addingCustomTileGroups: addingCustomTileGroups)
+        let parser = MSKTiledMapParser()
+        parser.loadTilemap(filename: tiledMapName,
+                           allowTileImagesCache: allowTileImagesCache,
+                           addingCustomTileGroups: addingCustomTileGroups)
+        let parsed = parser.getTileMapNodes()
         layers = parsed.layers
         tileGroups = parsed.tileGroups
         tiledObjectGroups = parsed.tiledObjectGroups

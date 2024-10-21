@@ -41,31 +41,9 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var fileName = ""
 
     @MainActor
-    public func loadTilemap(filename: String,
-                            allowTileImagesCache: Bool = true,
-                            checkBundleForTileImages: Bool = false,
-                            // swiftlint:disable:next large_tuple
-                            addingCustomTileGroups: [SKTileGroup]? = nil) -> (layers: [SKTileMapNode],
-                                                                              tileGroups: [SKTileGroup],
-                                                                              tiledObjectGroups: [MSKTiledObjectGroup]?) {
-        self.fileName = filename
-        self.allowTileImagesCache = allowTileImagesCache
-        self.checkBundleForTileImages = checkBundleForTileImages
-        self.addingCustomTileGroups = addingCustomTileGroups
-        guard let path = Bundle.main.url(forResource: filename, withExtension: ".tmx") else {
-            log(logLevel: .error, message: "Failed to locate tilemap \(filename) in bundle")
-            return ([], [], nil)
-        }
-        guard let parser = XMLParser(contentsOf: path) else {
-            log(logLevel: .error, message: "Failed to load xml tilemap \(filename)")
-            return ([], [], nil)
-        }
-
-        parser.delegate = self
-        parser.parse()
-
-        cleanUp()
-
+    public func getTileMapNodes() -> (layers: [SKTileMapNode],
+                                      tileGroups: [SKTileGroup],
+                                      tiledObjectGroups: [MSKTiledObjectGroup]?) {
         let tileMapNodeLayers: [SKTileMapNode] = layers.map { layer in
             let tileSet = layer.tileSet
             let rawLayer = layer.rawLayer
@@ -95,6 +73,30 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
             return tileMapNode
         }
         return (tileMapNodeLayers, tileGroups, tiledObjectGroups)
+    }
+
+    public func loadTilemap(filename: String,
+                            allowTileImagesCache: Bool = true,
+                            checkBundleForTileImages: Bool = false,
+                            // swiftlint:disable:next large_tuple
+                            addingCustomTileGroups: [SKTileGroup]? = nil) {
+        self.fileName = filename
+        self.allowTileImagesCache = allowTileImagesCache
+        self.checkBundleForTileImages = checkBundleForTileImages
+        self.addingCustomTileGroups = addingCustomTileGroups
+        guard let path = Bundle.main.url(forResource: filename, withExtension: ".tmx") else {
+            log(logLevel: .error, message: "Failed to locate tilemap \(filename) in bundle")
+            return
+        }
+        guard let parser = XMLParser(contentsOf: path) else {
+            log(logLevel: .error, message: "Failed to load xml tilemap \(filename)")
+            return
+        }
+
+        parser.delegate = self
+        parser.parse()
+
+        cleanUp()
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
