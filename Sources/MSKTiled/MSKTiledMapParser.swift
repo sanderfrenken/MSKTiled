@@ -1,6 +1,12 @@
 import SpriteKit
 import GameplayKit
 
+private struct LayerToAdd {
+    let tileSet: SKTileSet
+    let layerData: [Int]
+    let rawLayer: RawLayer
+}
+
 // swiftlint:disable:next type_body_length
 public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
 
@@ -11,7 +17,8 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var encodingType: EncodingType = .csv
 
     private var tileGroups = [SKTileGroup]()
-    private var layers = [SKTileMapNode]()
+//    private var layers = [SKTileMapNode]()
+    private var layers = [LayerToAdd]()
 
     private var tileSize = CGSize()
     private var mapSize = CGSize()
@@ -33,6 +40,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var currentTiledObject: MSKTiledObject?
     private var fileName = ""
 
+    @MainActor
     public func loadTilemap(filename: String,
                             allowTileImagesCache: Bool = true,
                             checkBundleForTileImages: Bool = false,
@@ -46,18 +54,47 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
         self.addingCustomTileGroups = addingCustomTileGroups
         guard let path = Bundle.main.url(forResource: filename, withExtension: ".tmx") else {
             log(logLevel: .error, message: "Failed to locate tilemap \(filename) in bundle")
-            return (layers, tileGroups, nil)
+            return ([], [], nil)
         }
         guard let parser = XMLParser(contentsOf: path) else {
             log(logLevel: .error, message: "Failed to load xml tilemap \(filename)")
-            return (layers, tileGroups, nil)
+            return ([], [], nil)
         }
 
         parser.delegate = self
         parser.parse()
 
         cleanUp()
-        return (layers, tileGroups, tiledObjectGroups)
+
+        let tileMapNodeLayers: [SKTileMapNode] = layers.map { layer in
+            let tileSet = layer.tileSet
+            let rawLayer = layer.rawLayer
+            let layerData = layer.layerData
+            let tileMapNode = SKTileMapNode(tileSet: tileSet, columns: Int(mapSize.width), rows: Int(mapSize.height), tileSize: tileSize)
+
+            var idx = 0
+            for tileId in layerData {
+                if !hasValidTileData(tileId: tileId) {
+                    idx+=1
+                    continue
+                }
+                var column = 0
+                if idx > 0 {
+                    column = idx%Int(mapSize.width)
+                }
+                let row = Int(mapSize.height-1)-Int(floor(CGFloat(idx)/mapSize.width))
+
+                let tileGroup = getTileGroup(tileId: tileId)
+                tileMapNode.setTileGroup(tileGroup, forColumn: column, row: row)
+                idx+=1
+            }
+            tileMapNode.name = rawLayer.name
+            if rawLayer.invisible {
+                tileMapNode.alpha = 0
+            }
+            return tileMapNode
+        }
+        return (tileMapNodeLayers, tileGroups, tiledObjectGroups)
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -329,29 +366,9 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
                 }
 
                 let tileSet = SKTileSet(tileGroups: tileGroups, tileSetType: .grid)
-                let layer = SKTileMapNode(tileSet: tileSet, columns: Int(mapSize.width), rows: Int(mapSize.height), tileSize: tileSize)
-
-                var idx = 0
-                for tileId in layerData {
-                    if !hasValidTileData(tileId: tileId) {
-                        idx+=1
-                        continue
-                    }
-                    var column = 0
-                    if idx > 0 {
-                        column = idx%Int(mapSize.width)
-                    }
-                    let row = Int(mapSize.height-1)-Int(floor(CGFloat(idx)/mapSize.width))
-
-                    let tileGroup = getTileGroup(tileId: tileId)
-                    layer.setTileGroup(tileGroup, forColumn: column, row: row)
-                    idx+=1
-                }
-                layer.name = currentRawLayer.name
-                if currentRawLayer.invisible {
-                    layer.alpha = 0
-                }
-                layers.append(layer)
+                layers.append(.init(tileSet: tileSet,
+                                    layerData: layerData,
+                                    rawLayer: currentRawLayer))
             }
         }
         characters = ""
