@@ -8,7 +8,7 @@ private struct LayerToAdd {
 }
 
 // swiftlint:disable:next type_body_length
-public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
+public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     private var allowTileImagesCache: Bool = true
     private var checkBundleForTileImages: Bool = false
@@ -17,7 +17,6 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate {
     private var encodingType: EncodingType = .csv
 
     private var tileGroups = [SKTileGroup]()
-//    private var layers = [SKTileMapNode]()
     private var layers = [LayerToAdd]()
 
     private var tileSize = CGSize()
