@@ -1,4 +1,4 @@
-public struct MSKTiledTile: Equatable, Hashable, Decodable {
+public struct MSKTiledTile: Equatable, Hashable, Decodable, Sendable {
     public let column: Int
     public let row: Int
 
