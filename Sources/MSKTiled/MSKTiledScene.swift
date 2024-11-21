@@ -13,7 +13,7 @@ open class MSKTiledMapScene: SKScene {
     public let mapNode = SKNode()
     private let zoomGestureRecogniser = UIPinchGestureRecognizer()
     private let baseTileMapNode: SKTileMapNode
-    public var pathGraph: GKGridGraph<GKGridGraphNode>?
+    private var pathGraph: GKGridGraph<GKGridGraphNode>?
 
     public init(layers: [SKTileMapNode],
                 tileGroups: [SKTileGroup],
