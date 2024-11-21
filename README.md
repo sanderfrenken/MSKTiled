@@ -179,19 +179,6 @@ if let path = getPath(fromTile: firstTile, toTile: tile) {
 
 ```
 
-### Caching
-
-Parsing tilemaps the first time is expensive as `MKSTiled` will need to create the individual tiles from the tilesheets referenced in the map by using [SKTexture(rectIn:)](https://developer.apple.com/documentation/spritekit/sktexture/1520425-init). These individual tiles (which are just images) will be by default written inside the app container for future usage. This behavior can be disabled though by injecting `allowTileImagesCache` set to `false`:
-
-```
-super.init(size: size,
-            tiledMapName: "exampleTiled",
-            minimumCameraScale: 0.12,
-            maximumCameraScale: nil,
-            zPositionPerNamedLayer: zPositionPerNamedLayer,
-            allowTileImagesCache: false)
-```
-
 ## Installation
 
 ### Requirements

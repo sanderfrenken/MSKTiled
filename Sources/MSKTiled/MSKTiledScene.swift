@@ -65,9 +65,7 @@ open class MSKTiledMapScene: SKScene {
                 allowTileImagesCache: Bool = true,
                 addingCustomTileGroups: [SKTileGroup]? = nil) {
         let parser = MSKTiledMapParser()
-        parser.loadTilemap(filename: tiledMapName,
-                           allowTileImagesCache: allowTileImagesCache,
-                           addingCustomTileGroups: addingCustomTileGroups)
+        parser.loadTilemap(filename: tiledMapName, addingCustomTileGroups: addingCustomTileGroups)
         let parsed = parser.getTileMapNodes()
         layers = parsed.layers
         tileGroups = parsed.tileGroups
