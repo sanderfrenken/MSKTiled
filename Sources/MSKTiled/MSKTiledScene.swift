@@ -230,7 +230,7 @@ open class MSKTiledMapScene: SKScene {
         return node.connectedNodes.count > 0
     }
 
-    public override func willMove(from view: SKView) {
+    open override func willMove(from view: SKView) {
         super.willMove(from: view)
         pathGraph = nil
         self.view?.removeGestureRecognizer(zoomGestureRecogniser)
