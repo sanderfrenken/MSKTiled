@@ -92,7 +92,6 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
         parser.delegate = self
         parser.parse()
 
-        cleanUp()
         didParseFinish = true
     }
 
@@ -377,10 +376,6 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
         characters += string
     }
 
-    private func cleanUp() {
-        textureCache.removeAll()
-    }
-
     private func createTileGroupsFor(layerData: [Int]) {
         let uniqueTiles = Array(Set(layerData))
         for tileId in uniqueTiles {
@@ -446,8 +441,8 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
 
         let tileIdInSheet = Int(tileInfo.gid)-rawTileSet.firstGid
         let tileSheet = rawTileSet.image
-        let sourceTexture = getTexture(name: tileSheet)
-        
+        let sourceTexture = SKTexture(imageNamed: tileSheet)
+
         var column = 0
         if tileIdInSheet > 0 {
             column = tileIdInSheet%rawTileSet.columns
@@ -489,15 +484,6 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
         tileDefinition.size = .init(width: currentSize.width*1.01, height: currentSize.height*1.01)
         newTileGroup.name = "\(tileId)"
         return newTileGroup
-    }
-
-    private func getTexture(name: String) -> SKTexture {
-        if let cachedTexture = textureCache[name] {
-            return cachedTexture
-        }
-        let texture = SKTexture(imageNamed: name)
-        textureCache[name] = texture
-        return texture
     }
 
     private func getIntValueFromAttributes(_ attributes: [String: String], attributeName: AttributeName) -> Int? {
