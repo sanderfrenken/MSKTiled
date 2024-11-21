@@ -125,59 +125,64 @@ open class MSKTiledMapScene: SKScene {
     }
 
     public func updatePathGraphUsing(layer: SKTileMapNode, obstacleProperty: String, diagonalsAllowed: Bool) {
-        let graph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
+        pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(layer.numberOfColumns),
                                 height: Int32(layer.numberOfRows),
                                 diagonalsAllowed: diagonalsAllowed)
+        guard let pathGraph else {
+            return
+        }
         var obstacles = [GKGridGraphNode]()
         for column in 0..<layer.numberOfColumns {
             for row in 0..<layer.numberOfRows {
                 if let properties = getPropertiesForTileInLayer(layer: layer, tile: .init(column: column, row: row)),
                    let isObstacle = properties[obstacleProperty] as? Bool,
                    isObstacle {
-                    obstacles.append(graph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
+                    obstacles.append(pathGraph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
                 }
             }
         }
-        graph.remove(obstacles)
-        pathGraph = graph
     }
 
     public func updatePathGraphUsing(layer: SKTileMapNode, obstacleProperty: String, diagonalsAllowed: Bool, removingTiles: [MSKTiledTile]) {
-        let graph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
+        pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(layer.numberOfColumns),
                                 height: Int32(layer.numberOfRows),
                                 diagonalsAllowed: diagonalsAllowed)
+        guard let pathGraph else {
+            return
+        }
         var obstacles = [GKGridGraphNode]()
         for column in 0..<layer.numberOfColumns {
             for row in 0..<layer.numberOfRows {
                 if removingTiles.contains(.init(column: column, row: row)) {
-                    obstacles.append(graph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
+                    obstacles.append(pathGraph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
                 } else if let properties = getPropertiesForTileInLayer(layer: layer, tile: .init(column: column, row: row)),
                           let isObstacle = properties[obstacleProperty] as? Bool,
                           isObstacle {
-                    obstacles.append(graph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
+                    obstacles.append(pathGraph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!)
                 }
             }
         }
-        graph.remove(obstacles)
-        pathGraph = graph
+        pathGraph.remove(obstacles)
     }
 
     public func updatePathGraphUsing(layer: SKTileMapNode, diagonalsAllowed: Bool) {
-        let graph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
+        pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(layer.numberOfColumns),
                                 height: Int32(layer.numberOfRows),
                                 diagonalsAllowed: diagonalsAllowed)
+        guard let pathGraph else {
+            return
+        }
         for column in 0..<layer.numberOfColumns {
             for row in 0..<layer.numberOfRows {
                 if layer.tileGroup(atColumn: column, row: row) != nil {
-                    let node = graph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!
+                    let node = pathGraph.node(atGridPosition: vector_int2(Int32(column), Int32(row)))!
                     node.removeConnections(to: node.connectedNodes, bidirectional: false)
                 }
             }
         }
-        pathGraph = graph
     }
 
     public func getPath(fromTile: MSKTiledTile, toTile: MSKTiledTile) -> [MSKTiledTile]? {
