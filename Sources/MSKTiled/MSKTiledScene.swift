@@ -100,10 +100,6 @@ open class MSKTiledMapScene: SKScene {
         camera = cameraNode
         addChild(cameraNode)
     }
-    
-    open override func willMove(from view: SKView) {
-        pathGraph = nil
-    }
 
     open override func didMove(to view: SKView) {
         super.didMove(to: view)
@@ -236,6 +232,7 @@ open class MSKTiledMapScene: SKScene {
 
     public override func willMove(from view: SKView) {
         super.willMove(from: view)
+        pathGraph = nil
         self.view?.removeGestureRecognizer(zoomGestureRecogniser)
     }
 
