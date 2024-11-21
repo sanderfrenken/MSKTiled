@@ -12,7 +12,7 @@ let package = Package(
             targets: ["MSKTiled"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.56.2")
+//        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.56.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
