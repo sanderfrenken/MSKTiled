@@ -488,13 +488,13 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
                                         in: sourceTexture)
 
             // Workaround to avoid tile cracking (https://github.com/mfessenden/SKTiled/issues/40)
-            let uimg = UIImage(cgImage: tileTexture.cgImage())
+//            let uimg = UIImage(cgImage: tileTexture.cgImage())
             if allowTileImagesCache {
                 if let data = uimg.pngData() {
                     try? data.write(to: getCacheFileUrl(tileName: tileName))
                 }
             }
-            texture = SKTexture(image: uimg)
+            texture = tileTexture
         }
 
         let tileDefinition = SKTileDefinition(texture: texture!)
