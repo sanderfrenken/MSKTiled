@@ -217,7 +217,7 @@ Details about the specific settings for this project can be found in the `.swift
 ## Games using MSKTiled
 The following games are using MSKTiled:
 
-- [Battledom](https://sites.google.com/view/battledom/home)
+- [Battledom](https://sanderfrenken.github.io/battledom-site/)
 - [Herodom](https://sites.google.com/view/herodom/home)
 
 - Do you use `MSKTiled` in any of your applications? Please extend this list by making a PR!
