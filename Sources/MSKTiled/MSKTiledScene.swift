@@ -6,7 +6,7 @@ open class MSKTiledMapScene: SKScene {
     public let cameraNode: MSKTiledCameraNode
 
     public let layers: [SKTileMapNode]
-    public let tileGroups: [SKTileGroup]
+    public let tileSet: SKTileSet?
     public let tiledObjectGroups: [MSKTiledObjectGroup]?
     public let zPositionPerNamedLayer: [String: Int]
 
@@ -16,14 +16,12 @@ open class MSKTiledMapScene: SKScene {
     private var pathGraph: GKGridGraph<GKGridGraphNode>?
 
     public init(layers: [SKTileMapNode],
-                tileGroups: [SKTileGroup],
                 tiledObjectGroups: [MSKTiledObjectGroup]?,
                 size: CGSize,
                 minimumCameraScale: CGFloat,
                 maximumCameraScale: CGFloat?,
                 zPositionPerNamedLayer: [String: Int]) {
         self.layers = layers
-        self.tileGroups = tileGroups
         self.tiledObjectGroups = tiledObjectGroups
 
         guard let firstLayer = layers.first else {
@@ -51,7 +49,7 @@ open class MSKTiledMapScene: SKScene {
         self.cameraNode = MSKTiledCameraNode(minimumCameraScale: minimumCameraScaleToInject,
                                              maximumCameraScale: maximumScaleToInject)
         self.zPositionPerNamedLayer = zPositionPerNamedLayer
-
+        self.tileSet = nil
         super.init(size: size)
         camera = cameraNode
         addChild(cameraNode)
@@ -66,8 +64,8 @@ open class MSKTiledMapScene: SKScene {
         let parser = MSKTiledMapParser()
         parser.loadTilemap(filename: tiledMapName, addingCustomTileGroups: addingCustomTileGroups)
         let parsed = parser.getTileMapNodes()
+        tileSet = parsed.tileSet
         layers = parsed.layers
-        tileGroups = parsed.tileGroups
         tiledObjectGroups = parsed.tiledObjectGroups
 
         guard let firstLayer = layers.first else {

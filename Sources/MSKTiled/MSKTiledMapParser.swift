@@ -2,7 +2,6 @@ import SpriteKit
 import GameplayKit
 
 private struct LayerToAdd {
-    let tileSet: SKTileSet
     let layerData: [Int]
     let rawLayer: RawLayer
 }
@@ -13,13 +12,12 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
     private var characters = ""
     private var encodingType: EncodingType = .csv
 
-    private var tileGroups = [SKTileGroup]()
+    private var tileGroups = [Int: SKTileGroup]()
+    private var tileSet: SKTileSet?
     private var layers = [LayerToAdd]()
 
     private var tileSize = CGSize()
     private var mapSize = CGSize()
-
-    private var textureCache = [String: SKTexture]()
 
     private var currentRawTile: RawTile?
     private var rawTiles = [RawTile]()
@@ -44,13 +42,18 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
 
     @MainActor
     public func getTileMapNodes() -> (layers: [SKTileMapNode],
-                                      tileGroups: [SKTileGroup],
+                                      tileSet: SKTileSet?,
                                       tiledObjectGroups: [MSKTiledObjectGroup]?) {
         let tileMapNodeLayers: [SKTileMapNode] = layers.map { layer in
-            let tileSet = layer.tileSet
             let rawLayer = layer.rawLayer
             let layerData = layer.layerData
-            let tileMapNode = SKTileMapNode(tileSet: tileSet, columns: Int(mapSize.width), rows: Int(mapSize.height), tileSize: tileSize)
+            guard let tileSet else {
+                fatalError("TileSet not initialized for tilemap \(fileName)")
+            }
+            let tileMapNode = SKTileMapNode(tileSet: tileSet,
+                                            columns: Int(mapSize.width),
+                                            rows: Int(mapSize.height),
+                                            tileSize: tileSize)
 
             var idx = 0
             for tileId in layerData {
@@ -74,10 +77,11 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
             }
             return tileMapNode
         }
-        return (tileMapNodeLayers, tileGroups, tiledObjectGroups)
+        return (tileMapNodeLayers, tileSet, tiledObjectGroups)
     }
 
-    public func loadTilemap(filename: String, addingCustomTileGroups: [SKTileGroup]? = nil) {
+    public func loadTilemap(filename: String,
+                            addingCustomTileGroups: [SKTileGroup]? = nil) {
         self.fileName = filename
         self.addingCustomTileGroups = addingCustomTileGroups
         guard let path = Bundle.main.url(forResource: filename, withExtension: ".tmx") else {
@@ -91,6 +95,12 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
 
         parser.delegate = self
         parser.parse()
+
+        var tileGroupsForSet = tileGroups.values.map { $0 }
+        if let addingCustomTileGroups {
+            tileGroupsForSet.append(contentsOf: addingCustomTileGroups)
+        }
+        tileSet = SKTileSet(tileGroups: tileGroupsForSet, tileSetType: .grid)
 
         didParseFinish = true
     }
@@ -359,14 +369,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
 
                 createTileGroupsFor(layerData: layerData)
 
-                if let addingCustomTileGroups {
-                    tileGroups.append(contentsOf: addingCustomTileGroups)
-                }
-
-                let tileSet = SKTileSet(tileGroups: tileGroups, tileSetType: .grid)
-                layers.append(.init(tileSet: tileSet,
-                                    layerData: layerData,
-                                    rawLayer: currentRawLayer))
+                layers.append(.init(layerData: layerData, rawLayer: currentRawLayer))
             }
         }
         characters = ""
@@ -383,7 +386,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
                 continue
             }
             if let tileGroup = getTileGroup(tileId: tileId) {
-                tileGroups.append(tileGroup)
+                tileGroups[tileId] = tileGroup
             }
         }
     }
@@ -414,7 +417,7 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
     }
 
     private func hasTileGroupForTile(tileId: Int) -> Bool {
-        return tileGroups.first { $0.name == ("\(tileId)") } != nil
+        return tileGroups[tileId] != nil
     }
 
     private func getRawTileSetFor(tileId: Int) -> RawTileSet? {
@@ -429,10 +432,10 @@ public final class MSKTiledMapParser: NSObject, XMLParserDelegate, @unchecked Se
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     private func getTileGroup(tileId: Int) -> SKTileGroup? {
-        let tileGroup = tileGroups.first { $0.name == ("\(tileId)") }
-        if let tileGroup = tileGroup {
+        if let tileGroup = tileGroups[tileId] {
             return tileGroup
         }
+
         let tileInfo = parseTileIdWithFlags(tileId: UInt32(tileId))
         // Determine correct gid first, corrected for bitflags
         guard let rawTileSet = getRawTileSetFor(tileId: Int(tileInfo.gid)) else {
